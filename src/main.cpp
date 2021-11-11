@@ -301,7 +301,39 @@ void arm(int amount, float timeWait, float fastness)
    ml3.spin(fwd,0,volt );
 }
 
-/*void drfwd(double dis,double speed){
+void gOpen(){
+  mG.open();
+}
+
+void gClose(){
+  mG.close();
+}
+
+
+void bLift(int height, int speed){
+ml3.setVelocity(speed, pct);
+ml3.rotateFor(fwd,height*7,deg);
+}
+
+void ringOn(){
+  rl.setVelocity(100,pct);
+  rl.spin(fwd);
+}
+
+void ringOff(){
+ rl.setVelocity(0,pct);
+}
+
+/*
+.88b  d88.  .d8b.  d8b   db db    db  .d8b.  db        d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
+88'YbdP`88 d8' `8b 888o  88 88    88 d8' `8b 88        88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
+88  88  88 88ooo88 88V8o 88 88    88 88ooo88 88        88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
+88  88  88 88~~~88 88 V8o88 88    88 88~~~88 88        88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
+88  88  88 88   88 88  V888 88b  d88 88   88 88booo.   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
+YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'                                                                                                                                    
+*/
+
+void drfwd(double dis,double speed){
   int a = 700;
   lMotor1.setVelocity(speed, pct);
   lMotor1.rotateFor(dis*(a/(12.88)),  rotationUnits::raw,false);
@@ -324,6 +356,7 @@ void drbwd(double dis,double speed){
   rMotor2.setVelocity(speed, pct);
   rMotor2.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,false);
 }
+
 void drleft(double rot,double speed){
   int a = 700;
   double b = 7.93;
@@ -348,32 +381,33 @@ void drright(double rot,double speed){
   rMotor1.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(speed, pct);
   rMotor2.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+}
 
-}*/
-
-
-void gOpen(){
+void clawopen(){
   mG.open();
 }
 
-void gClose(){
+void clawclose(){
   mG.close();
 }
 
-
-void bLift(int height, int speed){
-ml3.setVelocity(speed, pct);
-ml3.rotateFor(fwd,height*7,deg);
+void liftUp(double rot, double speed){
+  ml2.setVelocity(speed, pct);
+  ml3.setVelocity(speed, pct);
+  ml2.rotateFor(5*rot, deg);
+  ml3.rotateFor(-1*5*rot, deg);
 }
 
-void ringOn(){
-  rl.setVelocity(100,pct);
-  rl.spin(fwd);
+void liftDown(double rot, double speed){
+  ml2.setVelocity(speed, pct);
+  ml3.setVelocity(speed, pct);
+  ml2.rotateFor(-1*5*rot, deg);
+  ml3.rotateFor(5*rot, deg);
 }
 
-void ringOff(){
- rl.setVelocity(0,pct);
-}
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888. 
@@ -485,8 +519,6 @@ if (con.ButtonL1.pressing()) {
 
 
 //}
-
-//.63
 
 
     if (con.ButtonL2.pressing()) {
