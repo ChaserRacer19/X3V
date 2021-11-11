@@ -404,15 +404,27 @@ con.Screen.print(michia.position(rev));
 
 
 if (con.ButtonL1.pressing()) {
-      if (f4 == 0) {
-      f4 = 1;
-      }
+  con.Screen.print("pressing"); 
+
+  if (f4 == 0) {
+    f4=1;
+
+    if (tog2 == 0) {
+      ml1.spinTo(365*1.1, deg, false);
+      tog2=1;
+    } else if (tog2==1) {
+      ml1.spinTo(365*.51, deg, false);
+      tog2=0;
+    }
+    
+  }
+} else if (con.ButtonL1.pressing() == false) {
+    f4=0;
+  }
 //}
 
 //if (f4 == 1) {
-  if (tog2 == 0) {
-      ml1.spinTo(365*1.05, deg, false);
-      tog2=1;
+
     /*
     if (michia.position(rev) <= 1.02) {
       ml1.spin(fwd, 50 ,pct);;
@@ -426,9 +438,7 @@ if (con.ButtonL1.pressing()) {
       f4 = 0;
     }
     */
-  } else if (tog2==1) {
-      ml1.spinTo(365*.65, deg, false);
-      tog2=0;
+
 
     /*
     if (michia.position(rev) <= .51) {
@@ -443,9 +453,9 @@ if (con.ButtonL1.pressing()) {
       f4 = 0;
     }
     */
-  }
 
-}
+
+
 //}
 
 //.63
