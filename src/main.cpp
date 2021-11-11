@@ -4,7 +4,7 @@ using namespace vex;
 competition Competition;
 //#define rev reverse
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int f1 = 0;
+int f1 = 1;
 int f2 = 0;
 int f3 = 0;
 int f4 = 0;
@@ -301,28 +301,11 @@ void arm(int amount, float timeWait, float fastness)
    ml3.spin(fwd,0,volt );
 }
 
-void gOpen(){
-  mG.open();
-}
-
-void gClose(){
-  mG.close();
-}
 
 
-void bLift(int height, int speed){
-ml3.setVelocity(speed, pct);
-ml3.rotateFor(fwd,height*7,deg);
-}
 
-void ringOn(){
-  rl.setVelocity(100,pct);
-  rl.spin(fwd);
-}
 
-void ringOff(){
- rl.setVelocity(0,pct);
-}
+
 
 /*
 .88b  d88.  .d8b.  d8b   db db    db  .d8b.  db        d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -405,8 +388,24 @@ void liftDown(double rot, double speed){
   ml3.rotateFor(5*rot, deg);
 }
 
+void ringOn(){
+  rl.setVelocity(100,pct);
+  rl.spin(fwd);
+}
 
+void ringOff(){
+ rl.setVelocity(0,pct);
+}
 
+void backArmDown(int speed){
+   ml1.setVelocity(speed, pct);
+   ml1.spinTo(365*1.1, deg, false);
+}
+
+void backArmUp(int speed){ 
+  ml1.setVelocity(speed, pct);
+  ml1.spinTo(365*.51, deg, false);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
