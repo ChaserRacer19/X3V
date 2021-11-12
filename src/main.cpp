@@ -15,12 +15,12 @@ int ringCheck = 0;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-d8888b. d888888b d8888b. 
-88  `8D   `88'   88  `8D 
-88oodD'    88    88   88 
-88~~~      88    88   88 
-88        .88.   88  .8D 
-88      Y888888P Y8888D' 
+d8888b. d888888b d8888b.
+88  `8D   `88'   88  `8D
+88oodD'    88    88   88
+88~~~      88    88   88
+88        .88.   88  .8D
+88      Y888888P Y8888D'
 */
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void turnPIDTime (double target, double time, bool reset = true, double i = 0) {
@@ -73,7 +73,7 @@ void driveOn(int leftPower, int rightPower)
   lMotor2.spin(fwd,leftPower,volt);
   rMotor1.spin(fwd,rightPower,volt);
   rMotor2.spin(fwd,rightPower,volt);
-  
+
 }
 float getPercentSpeed( int count )
 {
@@ -99,7 +99,7 @@ int secondsToMsec( float seconds )
 
  //int t1 = timer();
 
-//PID STARTS HERE 
+//PID STARTS HERE
 void drive(int inches, float waitTimeSec, float speed)
 {
   con.Screen.clearScreen();
@@ -112,7 +112,7 @@ void drive(int inches, float waitTimeSec, float speed)
   float T1=0;
 
   //const int MAX_SPEED = 127; //maximum speed as allowed by motors
-  const int MIN_SPEED = 10; 
+  const int MIN_SPEED = 10;
 
   float kP_dist = .4;
 	float kI_dist = 0.0001;
@@ -148,12 +148,12 @@ void drive(int inches, float waitTimeSec, float speed)
   //int rAverage =(rMotor1.position(deg)+rMotor2.position(deg)+rMotor3.position(deg))/3;
   //int lAverage =(lMotor1.position(deg)+lMotor2.position(deg)+lMotor3.position(deg))/3;
   resetRotaions();
-  
-  
+
+
 
   while(T1<timeLimitMsec && rMotor1.position(deg)<ticks)
   {
-    
+
     con.Screen.clearScreen();
     con.Screen.setCursor(1, 1);
     con.Screen.print(T1);
@@ -161,7 +161,7 @@ void drive(int inches, float waitTimeSec, float speed)
     con.Screen.print(rMotor1.position(deg));
 
 
-  
+
 
     error_dist = ticks - ((lMotor1.position(deg)+rMotor1.position(deg))/2);
 		error_diff = lMotor1.position(deg) - rMotor1.position(deg);
@@ -200,8 +200,8 @@ void drive(int inches, float waitTimeSec, float speed)
    lMotor2.spin(fwd,leftMotorSpeed,volt );
    rMotor1.spin(fwd,rightMotorSpeed,volt);
    rMotor2.spin(fwd,rightMotorSpeed,volt );
-   
-   
+
+
     tot_error_diff = tot_error_diff + error_diff;
 		averageError_diff = tot_error_diff / iteration;
 
@@ -217,10 +217,10 @@ void drive(int inches, float waitTimeSec, float speed)
     lMotor1.setBrake(brake);
     rMotor2.setBrake(brake);
     lMotor2.setBrake(brake);
-    
-    
-    
-  
+
+
+
+
 }
 
 //Arm PID
@@ -231,7 +231,7 @@ void arm(int amount, float timeWait, float fastness)
   float T1=0;
 
   //const int MAX_SPEED = 127; //maximum speed as allowed by motors
-  const int MIN_SPEED = 10; 
+  const int MIN_SPEED = 10;
 
   float kP_hight = 1.8;
 	float kI_hight = 0.0001;
@@ -241,14 +241,14 @@ void arm(int amount, float timeWait, float fastness)
 
 
 	int lastError_hight = 0;
-	
+
   float integral_hight = 0.0;
 	int derivative_hight;
 
   int timeLimitMsec = secondsToMsec(timeWait);
 
 	int power_hight;
-	
+
 
 	float percentSpeed;
 	int iteration = 1;
@@ -257,12 +257,12 @@ void arm(int amount, float timeWait, float fastness)
   //int rAverage =(rMotor1.position(deg)+rMotor2.position(deg)+rMotor3.position(deg))/3;
   //int lAverage =(lMotor1.position(deg)+lMotor2.position(deg)+lMotor3.position(deg))/3;
   resetRotaions();
-  
-  
+
+
 
   while(T1<timeLimitMsec && ml2.position(deg)<ticksHight)
   {
-    
+
     con.Screen.clearScreen();
     con.Screen.setCursor(1, 1);
     con.Screen.print(T1);
@@ -292,7 +292,7 @@ void arm(int amount, float timeWait, float fastness)
     //driveOn( leftMotorSpeed, rightMotorSpeed );
    ml2.spin(fwd,leftMotorSpeed,volt);
    ml3.spin(fwd,rightMotorSpeed,volt );
-  
+
     wait(40,msec);
     T1+=250;
     con.Screen.print(rMotor1.position(deg));
@@ -308,12 +308,12 @@ void arm(int amount, float timeWait, float fastness)
 
 
 /*
-.88b  d88.  .d8b.  d8b   db db    db  .d8b.  db        d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
-88'YbdP`88 d8' `8b 888o  88 88    88 d8' `8b 88        88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
-88  88  88 88ooo88 88V8o 88 88    88 88ooo88 88        88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
-88  88  88 88~~~88 88 V8o88 88    88 88~~~88 88        88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
-88  88  88 88   88 88  V888 88b  d88 88   88 88booo.   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
-YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'                                                                                                                                    
+.88b  d88.  .d8b.  d8b   db db    db  .d8b.  db        d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888.
+88'YbdP`88 d8' `8b 888o  88 88    88 d8' `8b 88        88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP
+88  88  88 88ooo88 88V8o 88 88    88 88ooo88 88        88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.
+88  88  88 88~~~88 88 V8o88 88    88 88~~~88 88        88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b.
+88  88  88 88   88 88  V888 88b  d88 88   88 88booo.   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D
+YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'
 */
 
 void drfwd(double dis,double speed,bool waitUntilComplete){
@@ -402,7 +402,7 @@ void backArmDown(int speed,bool waitUntilComplete){
    ml1.spinTo(365*1.1, deg, waitUntilComplete);
 }
 
-void backArmUp(int speed,bool waitUntilComplete){ 
+void backArmUp(int speed,bool waitUntilComplete){
   ml1.setVelocity(speed, pct);
   ml1.spinTo(365*.51, deg, waitUntilComplete);
 }
@@ -428,7 +428,7 @@ void drfwdacc(double dis,double speed,bool waitUntilComplete){
   rMotor1.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(.5*speed, pct);
   rMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,true);
-  
+
   //stage 3
   lMotor1.setVelocity(speed, pct);
   lMotor1.rotateFor(.9*dis*(a/(12.88)),  rotationUnits::raw,false);
@@ -440,14 +440,48 @@ void drfwdacc(double dis,double speed,bool waitUntilComplete){
   rMotor2.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
 }
 
+void drbwdacc(double dis,double speed,bool waitUntilComplete){
+    int a = 700;
+  //stage 1
+  lMotor1.setVelocity(.2*speed, pct);
+  lMotor1.rotateFor(-1*.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(.2*speed, pct);
+  lMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(.2*speed, pct);
+  rMotor1.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(.2*speed, pct);
+  rMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+  //stage 2
+  lMotor1.setVelocity(.5*speed, pct);
+  lMotor1.rotateFor(-1*.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(.5*speed, pct);
+  lMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(.5*speed, pct);
+  rMotor1.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(.5*speed, pct);
+  rMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+  //stage 3
+  lMotor1.setVelocity(speed, pct);
+  lMotor1.rotateFor(-1*.9*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(speed, pct);
+  lMotor2.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(speed, pct);
+  rMotor1.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(speed, pct);
+  rMotor2.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+}
+
+
 
 /*
- .d8b.  db    db d888888b  .d88b.  d8b   db   d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
-d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88   88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
-88ooo88 88    88    88    88    88 88V8o 88   88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
-88~~~88 88    88    88    88    88 88 V8o88   88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
-88   88 88b  d88    88    `8b  d8' 88  V888   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
-YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y' 
+ .d8b.  db    db d888888b  .d88b.  d8b   db   d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888.
+d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88   88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP
+88ooo88 88    88    88    88    88 88V8o 88   88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.
+88~~~88 88    88    88    88    88 88 V8o88   88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b.
+88   88 88b  d88    88    `8b  d8' 88  V888   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D
+YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'
 */
 
 void autonWP(){
@@ -485,25 +519,25 @@ void autonMMid(){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888. 
-88  `8D 88  `8D 88'            d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP 
-88oodD' 88oobY' 88ooooo        88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.   
-88~~~   88`8b   88~~~~~ C8888D 88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b. 
-88      88 `88. 88.            88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D 
-88      88   YD Y88888P        YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y'                                                                                                                       
+d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888.
+88  `8D 88  `8D 88'            d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP
+88oodD' 88oobY' 88ooooo        88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.
+88~~~   88`8b   88~~~~~ C8888D 88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b.
+88      88 `88. 88.            88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D
+88      88   YD Y88888P        YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y'
 */
 void pre_auton(void) {
   vexcodeInit();
- 
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*                                          
- .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888. 
-d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP 
-88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.   
-88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b. 
-88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D 
-YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y' 
+/*
+ .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888.
+d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP
+88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.
+88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b.
+88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D
+YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y'
 */
 void autonomous(void) {
 
@@ -513,12 +547,12 @@ void autonomous(void) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-d8888b. d8888b. d888888b db    db d88888b d8888b. 
-88  `8D 88  `8D   `88'   88    88 88'     88  `8D 
-88   88 88oobY'    88    Y8    8P 88ooooo 88oobY' 
-88   88 88`8b      88    `8b  d8' 88~~~~~ 88`8b   
-88  .8D 88 `88.   .88.    `8bd8'  88.     88 `88. 
-Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD 
+d8888b. d8888b. d888888b db    db d88888b d8888b.
+88  `8D 88  `8D   `88'   88    88 88'     88  `8D
+88   88 88oobY'    88    Y8    8P 88ooooo 88oobY'
+88   88 88`8b      88    `8b  d8' 88~~~~~ 88`8b
+88  .8D 88 `88.   .88.    `8bd8'  88.     88 `88.
+Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD
 */
 
 void usercontrol(void) {
@@ -536,14 +570,14 @@ void usercontrol(void) {
     lMotor2.spin(fwd, left, percent);
     rMotor1.spin(fwd, right, percent);
     rMotor2.spin(fwd, right, percent);
-  
+
 con.Screen.clearScreen();
 con.Screen.setCursor(1, 1);
 con.Screen.print(michia.position(rev));
 
 
 if (con.ButtonL1.pressing()) {
-  con.Screen.print("pressing"); 
+  con.Screen.print("pressing");
 
   if (f4 == 0) {
     f4=1;
@@ -555,7 +589,7 @@ if (con.ButtonL1.pressing()) {
       ml1.spinTo(365*.51, deg, false);
       tog2=0;
     }
-    
+
   }
 } else if (con.ButtonL1.pressing() == false) {
     f4=0;
@@ -599,7 +633,7 @@ if (con.ButtonL1.pressing()) {
 
 
     if (con.ButtonL2.pressing()) {
-      
+
       if (f1==0) {
         if (tog3==0) {
           mG.open();
@@ -613,7 +647,7 @@ if (con.ButtonL1.pressing()) {
     } else {
         f1=0;
     }
-    
+
 
     if (con.ButtonB.pressing()) {
       rl.spin(reverse, 100, percent);
@@ -626,22 +660,22 @@ if (con.ButtonL1.pressing()) {
         }
       f2=1;
       }
-    } 
+    }
     if(!con.ButtonX.pressing()){
       f2=0;
     }
 
 
     if (tog==0 && !con.ButtonB.pressing()) {
-      if (rl.current(pct)<=90) { 
+      if (rl.current(pct)<=90) {
       rl.spin(fwd,100,percent);
       } else {
       rl.spin(reverse,100,percent);
       }
     } else if (tog==1 && !con.ButtonB.pressing()) {
       rl.stop();
-    } 
-    
+    }
+
     if(con.ButtonR1.pressing()) {
       ml3.spin(fwd, 100, percent);
       ml2.spin(fwd, 100, percent);
@@ -652,7 +686,7 @@ if (con.ButtonL1.pressing()) {
       ml3.stop(brakeType::hold);
       ml2.stop(brakeType::hold);
     }
-    wait(20, msec); 
+    wait(20, msec);
   }
 }
 
