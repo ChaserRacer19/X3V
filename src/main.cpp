@@ -316,7 +316,7 @@ void arm(int amount, float timeWait, float fastness)
 YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'                                                                                                                                    
 */
 
-void drfwd(double dis,double speed){
+void drfwd(double dis,double speed,bool waitUntilComplete){
   int a = 700;
   lMotor1.setVelocity(speed, pct);
   lMotor1.rotateFor(dis*(a/(12.88)),  rotationUnits::raw,false);
@@ -325,10 +325,10 @@ void drfwd(double dis,double speed){
   rMotor1.setVelocity(speed, pct);
   rMotor1.rotateFor(dis*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(speed, pct);
-  rMotor2.rotateFor(dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.rotateFor(dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
 }
 
-void drbwd(double dis,double speed){
+void drbwd(double dis,double speed,bool waitUntilComplete){
   int a = 700;
   lMotor1.setVelocity(speed, pct);
   lMotor1.rotateFor(-1*dis*(a/(12.88)),  rotationUnits::raw,false);
@@ -337,10 +337,10 @@ void drbwd(double dis,double speed){
   rMotor1.setVelocity(speed, pct);
   rMotor1.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(speed, pct);
-  rMotor2.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
 }
 
-void drleft(double rot,double speed){
+void drleft(double rot,double speed,bool waitUntilComplete){
   int a = 700;
   double b = 7.93;
   lMotor1.setVelocity(speed, pct);
@@ -350,10 +350,10 @@ void drleft(double rot,double speed){
   rMotor1.setVelocity(speed, pct);
   rMotor1.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(speed, pct);
-  rMotor2.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
 }
 
-void drright(double rot,double speed){
+void drright(double rot,double speed,bool waitUntilComplete){
   int a = 700;
   double b = 7.93;
   lMotor1.setVelocity(speed, pct);
@@ -363,7 +363,7 @@ void drright(double rot,double speed){
   rMotor1.setVelocity(speed, pct);
   rMotor1.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
   rMotor2.setVelocity(speed, pct);
-  rMotor2.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
 }
 
 void clawopen(){
@@ -374,18 +374,18 @@ void clawclose(){
   mG.close();
 }
 
-void liftUp(double rot, double speed){
+void liftUp(double rot, double speed,bool waitUntilComplete){
   ml2.setVelocity(speed, pct);
   ml3.setVelocity(speed, pct);
-  ml2.rotateFor(5*rot, deg);
-  ml3.rotateFor(-1*5*rot, deg);
+  ml2.rotateFor(5*rot, deg,false);
+  ml3.rotateFor(-1*5*rot, deg,waitUntilComplete);
 }
 
-void liftDown(double rot, double speed){
+void liftDown(double rot, double speed,bool waitUntilComplete){
   ml2.setVelocity(speed, pct);
   ml3.setVelocity(speed, pct);
-  ml2.rotateFor(-1*5*rot, deg);
-  ml3.rotateFor(5*rot, deg);
+  ml2.rotateFor(-1*5*rot, deg,false);
+  ml3.rotateFor(5*rot, deg,waitUntilComplete);
 }
 
 void ringOn(){
@@ -397,14 +397,90 @@ void ringOff(){
  rl.setVelocity(0,pct);
 }
 
-void backArmDown(int speed){
+void backArmDown(int speed,bool waitUntilComplete){
    ml1.setVelocity(speed, pct);
-   ml1.spinTo(365*1.1, deg, false);
+   ml1.spinTo(365*1.1, deg, waitUntilComplete);
 }
 
-void backArmUp(int speed){ 
+void backArmUp(int speed,bool waitUntilComplete){ 
   ml1.setVelocity(speed, pct);
-  ml1.spinTo(365*.51, deg, false);
+  ml1.spinTo(365*.51, deg, waitUntilComplete);
+}
+
+void drfwdacc(double dis,double speed,bool waitUntilComplete){
+    int a = 700;
+  //stage 1
+  lMotor1.setVelocity(.2*speed, pct);
+  lMotor1.rotateFor(.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(.2*speed, pct);
+  lMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(.2*speed, pct);
+  rMotor1.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(.2*speed, pct);
+  rMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+  //stage 2
+  lMotor1.setVelocity(.5*speed, pct);
+  lMotor1.rotateFor(.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(.5*speed, pct);
+  lMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(.5*speed, pct);
+  rMotor1.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(.5*speed, pct);
+  rMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,true);
+  
+  //stage 3
+  lMotor1.setVelocity(speed, pct);
+  lMotor1.rotateFor(.9*dis*(a/(12.88)),  rotationUnits::raw,false);
+  lMotor2.setVelocity(speed, pct);
+  lMotor2.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor1.setVelocity(speed, pct);
+  rMotor1.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,false);
+  rMotor2.setVelocity(speed, pct);
+  rMotor2.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+}
+
+
+/*
+ .d8b.  db    db d888888b  .d88b.  d8b   db   d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
+d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88   88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
+88ooo88 88    88    88    88    88 88V8o 88   88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
+88~~~88 88    88    88    88    88 88 V8o88   88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
+88   88 88b  d88    88    `8b  d8' 88  V888   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
+YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y' 
+*/
+
+void autonWP(){
+  liftUp(90, 40,true);
+  drfwd(4, 40,true);
+  liftDown(20, 40,true);
+  drbwd(2, 40, true);
+  drright(35, 40, true);
+  drbwd(16, 40, true);
+  drright(155, 40, true);
+  drbwd(120, 40, false);
+  backArmDown(100, false);
+  wait(10, sec);
+  backArmUp(100, true);
+  ringOn();
+  wait(2, sec);
+  drbwd(6, 40, true);
+  drright(90, 40, true);
+  drbwd(30, 40, true);
+  wait(.1, sec);
+  drfwd(30, 40, true);
+}
+
+void autonLMid(){
+  drfwd(54, 100,true);
+}
+
+void autonRMid(){
+
+}
+
+void autonMMid(){
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -430,7 +506,9 @@ d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    8
 YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y' 
 */
 void autonomous(void) {
-   drive(36,5,100);
+
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
