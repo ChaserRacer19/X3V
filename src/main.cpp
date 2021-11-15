@@ -374,18 +374,18 @@ void clawclose(){
   mG.close();
 }
 
-void liftUp(double rot, double speed,bool waitUntilComplete){
+void liftUp(double rot, double speed,bool waitUntilComplete) {
   ml2.setVelocity(speed, pct);
   ml3.setVelocity(speed, pct);
   ml2.rotateFor(5*rot, deg,false);
-  ml3.rotateFor(-1*5*rot, deg,waitUntilComplete);
+  ml3.rotateFor(1*5*rot, deg, true);
 }
 
 void liftDown(double rot, double speed,bool waitUntilComplete){
   ml2.setVelocity(speed, pct);
   ml3.setVelocity(speed, pct);
   ml2.rotateFor(-1*5*rot, deg,false);
-  ml3.rotateFor(5*rot, deg,waitUntilComplete);
+  ml3.rotateFor(-5*rot, deg,waitUntilComplete);
 }
 
 void ringOn(){
@@ -485,11 +485,16 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
 */
 
 void autonWP(){
-  liftUp(90, 40,true);
-  drfwd(4, 40,true);
-  liftDown(20, 40,true);
-  drbwd(2, 40, true);
-  drright(35, 40, true);
+  //liftUp(90, 40,true);
+  drfwd(46, 100,true);
+  liftDown(5,100, false);
+  drfwd(3, 10,true);
+  wait(.2,sec);
+  clawopen();
+  //liftDown(20, 40,true);
+  wait(.2, sec);
+  drbwd(40, 100, true);
+  /*drright(35, 40, true);
   drbwd(16, 40, true);
   drright(155, 40, true);
   drbwd(120, 40, false);
@@ -503,14 +508,79 @@ void autonWP(){
   drbwd(30, 40, true);
   wait(.1, sec);
   drfwd(30, 40, true);
+  */
 }
 
-void autonLMid(){
-  drfwd(54, 100,true);
+void autonWP4 () {
+liftDown(10, 100, false);
+drfwd(24, 40, false);
+wait(1,sec);
+clawopen();
+liftUp(30, 100, false);
+wait(1.5,sec);
+drleft(30, 100, true);
+drfwd(5, 100, true);
+drleft(30, 100, true);
+drfwd(3, 100, true);
+drleft(60, 100, true);
+drfwd(2, 100, true);
+drleft(60, 100, true);
+drfwd(15, 40, true);
+clawclose();
+wait(.05, sec);
+clawclose();
+drbwd(2, 100, true);
+liftDown(40, 100, false);
+drright(100, 100, true);
+drfwd(40, 100, true);
+drfwd(2, 40, true);
+clawopen();
+wait(.2, sec);
+drbwd(20,100, true);
+
 }
 
-void autonRMid(){
+void autonWP3 () {
+liftDown(10, 100, false);
+drfwd(24, 40, false);
+wait(1,sec);
+clawopen();
+wait(1.5,sec);
+drbwd(25, 40, true);
+drleft(60, 100, true);
+clawclose();
+clawclose();
+}
 
+void autonWP2 (){
+liftDown(10, 100, false);
+drfwd(24, 40, false);
+wait(1,sec);
+clawopen();
+wait(1.5,sec);
+drbwd(23, 40, true);
+drleft(90, 100, true);
+drfwd(24, 100, true);
+clawclose();
+clawclose();
+drbwd(6, 100, true);
+drright(90, 100, true);
+drfwd(54, 100, true);
+clawopen();
+clawopen();
+drbwd(54, 100, true);
+}
+
+void autonWP5(){
+  backArmDown(100, true);
+  drbwd(18, 20, true);
+  backArmUp(100, true);
+  wait(.5, sec);
+  ringOn();
+//  drleft(30, 100, false);
+//  drbwd(6, 40, true);
+//  drbwd(24, 100, true);
+//  drfwd(36, 100, true);
 }
 
 void autonMMid(){
@@ -541,6 +611,7 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P
 */
 void autonomous(void) {
 
+autonWP5();
 
 
 }
@@ -583,10 +654,10 @@ if (con.ButtonL1.pressing()) {
     f4=1;
 
     if (tog2 == 0) {
-      ml1.spinTo(365*1.1, deg, false);
+      ml1.spinTo(365*.99, deg, false);
       tog2=1;
     } else if (tog2==1) {
-      ml1.spinTo(365*.51, deg, false);
+      ml1.spinTo(365*.5, deg, false);
       tog2=0;
     }
 
@@ -596,6 +667,11 @@ if (con.ButtonL1.pressing()) {
   }
 //}
 
+if (con.ButtonUp.pressing()) {
+  ml1.spinFor(fwd, 1, deg);
+} else if (con.ButtonDown.pressing()) {
+  ml1.spinFor(reverse, 1, deg);
+}
 //if (f4 == 1) {
 
     /*
