@@ -108,7 +108,7 @@ d8888b. d888888b d8888b.
     con.Screen.print(timer());
     con.Screen.print(rMotor1.position(deg));
 
-    const int ticks = inches*(180/(4.1*3.14159));
+    const int ticks = inches*(180/(4.05*3.14159));
 
     float T1=0;
 
@@ -119,9 +119,9 @@ d8888b. d888888b d8888b.
     float kI_dist = 0.0001;
     float kD_dist = 0.2;
 
-    float kP_diff = .54;
-    float kI_diff = 0.01;
-    float kD_diff = .2;
+    float kP_diff = 0;
+    float kI_diff = 0.001;
+    float kD_diff = 0;
 
       int error_dist = 0;
     int error_diff = 0;
@@ -141,7 +141,7 @@ d8888b. d888888b d8888b.
     int power_diff;
 
     float percentSpeed;
-    int iteration = 1;
+    double iteration = 1;
 
     float	tot_error_diff = 0;
     float averageError_diff = 0;
@@ -488,10 +488,18 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
     drfwd(46, 100,true);
     liftDown(5,100, false);
     drfwd(3, 10,true);
-    wait(.2,sec);
     clawclose();
     wait(.2, sec);
     drbwd(40, 100, true);
+  }
+
+    void autonThrowMid(){
+       clawopen();
+    drfwd(70, 100,true);
+
+ 
+    wait(.2, sec);
+    drbwd(60, 100, true);
   }
 
   //right mogo turn left drop near ramp turn right grab right nutral mogo
@@ -578,6 +586,7 @@ d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88
   void pre_auton(void) {
     vexcodeInit();
 
+
   }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -590,7 +599,7 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P
 */
   void autonomous(void) {
 
-autonSMid();
+    autonSMid();
 
   }
 
@@ -649,6 +658,10 @@ Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD
     ml1.spinFor(fwd, 1, deg);
   } else if (con.ButtonDown.pressing()) {
     ml1.spinFor(reverse, 1, deg);
+  }
+
+  if (con.ButtonY                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       .pressing()){
+    ml1.spinTo(0,deg,false);
   }
   //if (f4 == 1) {
 
