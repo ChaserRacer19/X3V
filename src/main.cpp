@@ -493,13 +493,11 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
     drbwd(40, 100, true);
   }
 
-    void autonThrowMid(){
-       clawopen();
-    drfwd(70, 100,true);
-
- 
-    wait(.2, sec);
-    drbwd(60, 100, true);
+   void autonThrowMid(){
+      clawopen();
+      drfwd(70, 100,true);
+      wait(.2, sec);
+      drbwd(60, 100, true);
   }
 
   //right mogo turn left drop near ramp turn right grab right nutral mogo
@@ -570,8 +568,10 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
       ringOn();
   }
 
-  void autonMMid(){
-
+  void autonFullMid(){
+    clawopen();
+    drfwd(6, 100, true);
+    
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -615,6 +615,7 @@ Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD
 
   void usercontrol(void) {
     michia.resetPosition();
+    ml1.setVelocity(100, pct);
     while (1) {
 
       Brain.Screen.clearScreen();
