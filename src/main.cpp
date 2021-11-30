@@ -13,6 +13,8 @@ int tog = 1;
 int tog2 = 0;
 int tog3 = 1;
 int ringCheck = 0;
+float uppos = .50;
+float downpos = .99;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
@@ -653,12 +655,20 @@ Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD
   } else if (con.ButtonA.pressing() == false) {
       f4=0;
     }
-  //}
 
-  if (con.ButtonUp.pressing()) {
-    ml1.spinFor(fwd, 1, deg);
-  } else if (con.ButtonDown.pressing()) {
-    ml1.spinFor(reverse, 1, deg);
+  if (con.ButtonUp.pressing()||con.ButtonDown.pressing()) {
+    if (f3==0) {
+      f3=1;
+      if (con.ButtonUp.pressing()) {
+        uppos -= .01;
+        downpos -= .01;
+      } else if (con.ButtonDown.pressing()) {
+        uppos += .01;
+        downpos += .01;    
+      }
+    } else if (con.ButtonUp.pressing()==false && con.ButtonUp.pressing()==false) {
+      f3=0;
+    }
   }
 
   if (con.ButtonY                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       .pressing()){
