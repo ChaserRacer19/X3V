@@ -47,7 +47,7 @@ d8888b. d888888b d8888b.
     int iterations = 0;
     //int timeout = 0;
     while(iterations < time) {
-      double output = pid.getOutput(tom.orientation(yaw,deg)/gyroCalibrationConst, target + bias);
+      double output = pid.getOutput(tom.orientation(pitch,deg)/gyroCalibrationConst, target + bias);
       lMotor1.spin(fwd,-output,volt);
       lMotor2.spin(fwd,-output,volt);
       rMotor1.spin(fwd,output,volt);
@@ -402,7 +402,7 @@ YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P
 
   void backArmDown(int speed,bool waitUntilComplete){
     ml1.setVelocity(speed, pct);
-    ml1.spinTo(365*1.1, deg, waitUntilComplete);
+    ml1.spinTo(365*.8, deg, waitUntilComplete);
   }
 
   void backArmUp(int speed,bool waitUntilComplete){
@@ -543,6 +543,43 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
     clawopen();
   }
 
+  void autonWPL(){
+    drfwd(15,40,false);
+    wait(1,sec);
+    clawclose();
+    wait(1.5,sec);
+    drbwd(15,40,true);
+  }
+
+  void fullAutonWP(){
+    backArmDown(100, true);
+ /*   liftDown(10, 100, false);
+    //drfwd(20,40,true);
+    clawclose();
+    wait(1,sec);
+    drright(30, 100, true);
+    liftUp(40, 100, true);
+    drbwd(15,40,true);
+    drleft(60, 100, true);
+    drfwd(22,60,true);
+    drright(25, 100, true);
+    drfwd(50, 100, true);
+    drleft(190, 100, true);
+    backArmDown(100, true);
+    drbwd(18, 100, true);*/
+  /*drleft(90, 60, true);
+    //backArmDown(70, false);
+    drbwd(100,  80, true);
+    backArmUp(100, false);
+    drfwd(5, 70, true);
+    ringOn();
+    wait(2, sec);
+    drleft(90,60,true);
+    drbwd(10, 80, true);
+    drfwd(15, 100, true);*/
+
+    }
+
   void autonWPR_Mid (){
     liftDown(10, 100, false);
     drfwd(24, 40, false);
@@ -576,6 +613,7 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
     
   }
 
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888.
@@ -601,7 +639,7 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P
 */
   void autonomous(void) {
 
-    autonSMid();
+    fullAutonWP();
 
   }
 
