@@ -402,7 +402,7 @@ YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P
 
   void backArmDown(int speed,bool waitUntilComplete){
     ml1.setVelocity(speed, pct);
-    ml1.spinTo(365*.8, deg, waitUntilComplete);
+    ml1.spinTo(365*.99, deg, waitUntilComplete);
   }
 
   void backArmUp(int speed,bool waitUntilComplete){
@@ -552,32 +552,22 @@ YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P' 
   }
 
   void fullAutonWP(){
-    backArmDown(100, true);
- /*   liftDown(10, 100, false);
+   liftDown(10, 100, false);
     //drfwd(20,40,true);
     clawclose();
     wait(1,sec);
     drright(30, 100, true);
-    liftUp(40, 100, true);
+    liftUp(90, 100, true);
     drbwd(15,40,true);
     drleft(60, 100, true);
-    drfwd(22,60,true);
-    drright(25, 100, true);
-    drfwd(50, 100, true);
-    drleft(190, 100, true);
+    drfwd(24,60,true);
+    wait(.5, sec);
+    drright(26, 100, true);
+    drfwd(44, 100, true);
+    drleft(220, 100, true);
     backArmDown(100, true);
-    drbwd(18, 100, true);*/
-  /*drleft(90, 60, true);
-    //backArmDown(70, false);
-    drbwd(100,  80, true);
-    backArmUp(100, false);
-    drfwd(5, 70, true);
-    ringOn();
-    wait(2, sec);
-    drleft(90,60,true);
-    drbwd(10, 80, true);
-    drfwd(15, 100, true);*/
-
+    drbwd(18, 100, true);
+    backArmUp(100, true);
     }
 
   void autonWPR_Mid (){
