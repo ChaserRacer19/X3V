@@ -117,12 +117,12 @@ d8888b. d888888b d8888b.
     //const int MAX_SPEED = 127; //maximum speed as allowed by motors
     const int MIN_SPEED = 10;
 
-    float kP_dist = .4;
-    float kI_dist = 0.0001;
-    float kD_dist = 0.2;
+    float kP_dist = 0;
+    float kI_dist = 0.000001;
+    float kD_dist = 0;
 
     float kP_diff = 0;
-    float kI_diff = 0.001;
+    float kI_diff = 0.000001;
     float kD_diff = 0;
 
       int error_dist = 0;
