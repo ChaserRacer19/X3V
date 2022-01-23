@@ -1,0 +1,1071 @@
+#include "vex.h"
+#include "MiniPID.h"
+#include "robot-config.h"
+using namespace vex;
+competition Competition;
+//#define rev reverse
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int f1 = 1;
+int f2 = 0;
+int f3 = 0;
+int f4 = 0;
+int tog = 1;
+int tog2 = 0;
+int tog3 = 1;
+int ringCheck = 0;
+float uppos = .50;
+float downpos = 1;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+d8888b. d888888b d8888b.
+88  `8D   `88'   88  `8D
+88oodD'    88    88   88
+88~~~      88    88   88
+88        .88.   88  .8D
+88      Y888888P Y8888D'
+*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /*void turnPIDTime (double target, double T, bool reset = true, double i = 0) {
+    MiniPID pid = MiniPID(0.1, i, 0);
+    pid.setOutputLimits(-127, 127);
+    pid.setMaxIOutput(30);
+    pid.setSetpointRange(900);
+    //int bias = std::nearbyint(0.059722*target);
+    int bias = 0;
+   
+    //bias was 38
+    float gyroCalibrationConst = 1;
+    if(target < 0) {
+      gyroCalibrationConst = 1.066;
+    } else if (target > 0) {
+      gyroCalibrationConst = 1.061;
+    }
+    //reset the gyro value
+    if(reset){
+      tom.resetHeading();
+    }
+    int iterations = 0;
+    //int timeout = 0;
+    while(iterations < T1) {
+      double output = pid.getOutput(tom.orientation(yaw,deg)/gyroCalibrationConst, target + bias);
+      lMotor1.spin(fwd,-output,volt);
+      rMotor1.spin(fwd,output,volt);
+      lMotor2.spin(fwd,-output,volt);
+      rMotor2.spin(fwd,output,volt);
+      wait(40,msec);
+      iterations = iterations + 10;
+      T1+=.004;
+    }
+    lMotor1.spin(fwd,0,volt);
+    lMotor2.spin(fwd,0,volt);
+    lMotor1.spin(fwd,0,volt);
+    rMotor2.spin(fwd,0,volt);
+  }*/
+
+  //Helper Functions
+  void resetRotaions()
+  {
+    lMotor1.resetPosition();
+    lMotor2.resetPosition();
+    rMotor1.resetPosition();
+    rMotor2.resetPosition();
+  } //resetEncoders
+
+  void resetInertialSenor(){
+    tom.resetRotation();
+    tom.resetHeading();
+  }
+
+  void driveOn(int leftPower, int rightPower)
+  {
+    lMotor1.spin(fwd,leftPower,volt);
+    lMotor2.spin(fwd,leftPower,volt);
+    rMotor1.spin(fwd,rightPower,volt);
+    rMotor2.spin(fwd,rightPower,volt);
+
+  }
+  float getPercentSpeed( int count )
+  {
+    float percent;
+
+    if( count < 10 )
+    {
+      percent = count * 0.1;
+    }
+    else
+    {
+      percent = 1.0;
+    }
+
+    return ( percent );
+  }
+
+  int secondsToMsec( float seconds )
+  {
+    return ( seconds * 1000 );
+  } //secondsToMsec
+   
+//TRUNING PID
+void turnRight(int target, float waitTimeSec, float speed)
+  {
+    con.Screen.clearScreen();
+    con.Screen.setCursor(1, 1);
+    con.Screen.print(timer());
+    con.Screen.print(rMotor1.position(deg));
+  
+   
+
+    float T1=0;
+
+    //const int MAX_SPEED = 127; //maximum speed as allowed by motors
+    const int MIN_SPEED = 0;
+
+    float kP_turn = 0.39;
+    float kI_turn = 0; 
+    float kD_turn = 0.1; 
+
+    int error_turn = 0;
+  
+    int lastError_turn = 0;
+  
+    float integral_turn = 0;
+    int derivative_turn=2;
+
+
+    int timeLimitMsec = 1000*(waitTimeSec);
+
+    int power_turn;
+
+    float percentSpeed;
+    double iteration = 1;
+
+    float	tot_error_turn = 0;
+    float averageError_turn = 0;
+
+    //int rAverage =(rMotor1.position(deg)+rMotor2.position(deg)+rMotor3.position(deg))/3;
+    //int lAverage =(lMotor1.position(deg)+lMotor2.position(deg)+lMotor3.position(deg))/3;
+    resetInertialSenor();
+    con.Screen.setCursor(3, 3);
+    con.Screen.setCursor(4,4);
+    con.Screen.print("");
+
+    while((T1<timeLimitMsec)) 
+    {
+
+      con.Screen.clearScreen();
+      con.Screen.setCursor(1, 1);
+      //con.Screen.print(integral_dist);
+      con.Screen.print("t");
+      con.Screen.print(T1);
+      con.Screen.setCursor(2, 2);
+      //con.Screen.print(rMotor1.position(deg));
+      //con.Screen.setCursor(3, 3);
+      con.Screen.print("e");
+      con.Screen.print(error_turn);
+      con.Screen.setCursor(3, 3);
+      con.Screen.print("d");
+    
+      int sensorOrientation = tom.orientation(yaw,deg);
+      error_turn = target - abs(sensorOrientation);
+      //slowly ramp up speed over 40 loops
+      percentSpeed = getPercentSpeed( iteration );
+      iteration ++;
+
+        if( error_turn != 0)
+      {
+        integral_turn = integral_turn + error_turn;
+      }
+      else
+      {
+        integral_turn = 0;
+      }
+                                                                  
+
+      derivative_turn = abs(error_turn - lastError_turn);
+    
+
+      lastError_turn = error_turn;
+      
+
+      power_turn = (error_turn * kP_turn) + (integral_turn * kI_turn) - (derivative_turn * kD_turn);
+ 
+
+      /*if( abs(power_dist) > speed )
+      {
+        power_dist = speed * abs(power_dist)/power_dist;
+      }*/
+
+      int leftMotorSpeed =  MIN_SPEED + (power_turn) * percentSpeed;
+      int rightMotorSpeed = MIN_SPEED + (power_turn)  * percentSpeed;
+
+      //driveOn( leftMotorSpeed, rightMotorSpeed );
+      lMotor1.spin(fwd,leftMotorSpeed,volt);
+      lMotor2.spin(fwd,leftMotorSpeed,volt);
+      rMotor1.spin(fwd,-rightMotorSpeed,volt);
+      rMotor2.spin(fwd,-rightMotorSpeed,volt);
+
+
+      tot_error_turn = tot_error_turn + error_turn;
+      averageError_turn = tot_error_turn / iteration;
+
+      wait(10,msec);
+      T1+=375;
+      con.Screen.print(rMotor1.position(deg));
+    }
+    con.Screen.print("done");
+      rMotor1.setBrake(coast);
+      lMotor1.setBrake(coast);
+      rMotor2.setBrake(coast);
+      lMotor2.setBrake(coast);
+      rMotor1.spin(fwd,0,volt);
+      lMotor1.spin(fwd,0,volt);
+      rMotor2.spin(fwd,0,volt);
+      lMotor2.spin(fwd,0,volt);
+      
+  }
+void turnLeft(int target, float waitTimeSec, float speed)
+  {
+    con.Screen.clearScreen();
+    con.Screen.setCursor(1, 1);
+    con.Screen.print(timer());
+    con.Screen.print(rMotor1.position(deg));
+    
+
+   
+
+    float T1=0;
+
+    //const int MAX_SPEED = 127; //maximum speed as allowed by motors
+    const int MIN_SPEED = 0;
+
+    float kP_turn = 0.39;
+    float kI_turn = 0; 
+    float kD_turn = 0.11; 
+
+    int error_turn = 0;
+  
+    int lastError_turn = 0;
+  
+    float integral_turn = 0;
+    int derivative_turn=2;
+
+
+    int timeLimitMsec = 1000*(waitTimeSec);
+
+    int power_turn;
+
+    float percentSpeed;
+    double iteration = 1;
+
+    float	tot_error_turn = 0;
+    float averageError_turn = 0;
+
+    //int rAverage =(rMotor1.position(deg)+rMotor2.position(deg)+rMotor3.position(deg))/3;
+    //int lAverage =(lMotor1.position(deg)+lMotor2.position(deg)+lMotor3.position(deg))/3;
+    resetInertialSenor();
+    con.Screen.setCursor(3, 3);
+    con.Screen.setCursor(4,4);
+    con.Screen.print("");
+
+    while((T1<timeLimitMsec)) 
+    {
+
+      con.Screen.clearScreen();
+      con.Screen.setCursor(1, 1);
+      //con.Screen.print(integral_dist);
+      con.Screen.print("t");
+      con.Screen.print(T1);
+      con.Screen.setCursor(2, 2);
+      //con.Screen.print(rMotor1.position(deg));
+      //con.Screen.setCursor(3, 3);
+      con.Screen.print("e");
+      con.Screen.print(error_turn);
+      con.Screen.setCursor(3, 3);
+      con.Screen.print("d");
+    
+      int sensorOrientation = tom.orientation(yaw,deg);
+      error_turn = target - abs(sensorOrientation);
+      //slowly ramp up speed over 40 loops
+      percentSpeed = getPercentSpeed( iteration );
+      iteration ++;
+
+        if( error_turn != 0)
+      {
+        integral_turn = integral_turn + error_turn;
+      }
+      else
+      {
+        integral_turn = 0;
+      }
+                                                                  
+
+      derivative_turn = abs(error_turn - lastError_turn);
+    
+
+      lastError_turn = error_turn;
+      
+
+      power_turn = (error_turn * kP_turn) + (integral_turn * kI_turn) - (derivative_turn * kD_turn);
+ 
+
+      /*if( abs(power_dist) > speed )
+      {
+        power_dist = speed * abs(power_dist)/power_dist;
+      }*/
+
+      int leftMotorSpeed =  MIN_SPEED + (power_turn) * percentSpeed;
+      int rightMotorSpeed = MIN_SPEED + (power_turn)  * percentSpeed;
+
+      //driveOn( leftMotorSpeed, rightMotorSpeed );
+      lMotor1.spin(fwd,-leftMotorSpeed,volt);
+      lMotor2.spin(fwd,-leftMotorSpeed,volt);
+      rMotor1.spin(fwd,rightMotorSpeed,volt);
+      rMotor2.spin(fwd,rightMotorSpeed,volt);
+
+
+      tot_error_turn = tot_error_turn + error_turn;
+      averageError_turn = tot_error_turn / iteration;
+
+      wait(10,msec);
+      T1+=100;
+      con.Screen.print(rMotor1.position(deg));
+    }
+    con.Screen.print("done");
+      rMotor1.setBrake(coast);
+      lMotor1.setBrake(coast);
+      rMotor2.setBrake(coast);
+      lMotor2.setBrake(coast);
+      rMotor1.spin(fwd,0,volt);
+      lMotor1.spin(fwd,0,volt);
+      rMotor2.spin(fwd,0,volt);
+      lMotor2.spin(fwd,0,volt);
+   }
+  
+
+  
+
+
+  //int t1 = timer();
+
+  //PID STARTS HERE
+ void drive(float inches, float waitTimeSec, float speed)
+  {
+    con.Screen.clearScreen();
+    con.Screen.setCursor(1, 1);
+    con.Screen.print(timer());
+    con.Screen.print(rMotor1.position(deg));
+    
+
+    const int ticks = 10*0.4286*inches*(180/(4.05*3.14159));
+
+    float T1=0;
+
+    //const int MAX_SPEED = 127; //maximum speed as allowed by motors
+    const int MIN_SPEED = 0;
+
+    float kP_dist = 0.028;
+    float kI_dist = 0.0001; //was.1
+    float kD_dist = 0.00945; //was.5
+
+    float kP_diff = 0;
+    float kI_diff = 0;
+    float kD_diff = 0;
+
+      int error_dist = 0;
+    int error_diff = 0;
+
+    int lastError_dist = 0;
+    int lastError_diff = 0;
+
+      float integral_dist = 0;
+    int derivative_dist=2;
+
+    float integral_diff;
+    int derivative_diff;
+
+    int timeLimitMsec = 1000*(waitTimeSec);
+
+    int power_dist;
+    int power_diff;
+
+    float percentSpeed;
+    double iteration = 1;
+
+    float	tot_error_diff = 0;
+    float averageError_diff = 0;
+
+    //int rAverage =(rMotor1.position(deg)+rMotor2.position(deg)+rMotor3.position(deg))/3;
+    //int lAverage =(lMotor1.position(deg)+lMotor2.position(deg)+lMotor3.position(deg))/3;
+    resetRotaions();
+    con.Screen.setCursor(3, 3);
+    con.Screen.print(error_dist);
+    con.Screen.setCursor(4,4);
+    con.Screen.print("");
+
+    while((T1<timeLimitMsec)) 
+    {
+
+      con.Screen.clearScreen();
+      con.Screen.setCursor(1, 1);
+      //con.Screen.print(integral_dist);
+      con.Screen.print("t");
+      con.Screen.print(T1);
+      con.Screen.setCursor(2, 2);
+      //con.Screen.print(rMotor1.position(deg));
+      //con.Screen.setCursor(3, 3);
+      con.Screen.print("e");
+      con.Screen.print(error_dist);
+      con.Screen.setCursor(3, 3);
+      con.Screen.print("d");
+      con.Screen.print(derivative_dist);
+
+      error_dist = ticks - ((lMotor1.position(deg)+rMotor1.position(deg))/2);
+      error_diff = lMotor1.position(deg) - rMotor1.position(deg);
+
+      //slowly ramp up speed over 40 loops
+      percentSpeed = getPercentSpeed( iteration );
+      iteration ++;
+
+        if( error_diff != 0)
+      {
+        integral_diff = integral_diff + error_diff;
+      }
+      else
+      {
+        integral_diff = 0;
+      }
+
+       if( error_dist != 0)
+      {
+        integral_dist = integral_dist + error_dist;
+      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+      else
+      {
+        integral_dist = 0;
+      }                                                                                             
+
+      derivative_dist = abs(error_dist - lastError_dist);
+      derivative_diff = abs(error_diff - lastError_diff);
+
+      lastError_dist = error_dist;
+      lastError_diff = error_diff;
+
+      power_dist = (error_dist * kP_dist) + (integral_dist * kI_dist) - (derivative_dist * kD_dist);
+      power_diff = (error_diff * kP_diff) + (integral_diff * kI_diff) - (derivative_diff * kD_diff);
+
+      /*if( abs(power_dist) > speed )
+      {
+        power_dist = speed * abs(power_dist)/power_dist;
+      }*/
+
+      int leftMotorSpeed =  MIN_SPEED + (power_dist - power_diff) * percentSpeed;
+      int rightMotorSpeed = MIN_SPEED + (power_dist + power_diff) * percentSpeed;
+
+      //driveOn( leftMotorSpeed, rightMotorSpeed );
+      lMotor1.spin(fwd,leftMotorSpeed,volt);
+      lMotor2.spin(fwd,leftMotorSpeed,volt);
+      rMotor1.spin(fwd,rightMotorSpeed,volt);
+      rMotor2.spin(fwd,rightMotorSpeed,volt);
+
+
+      tot_error_diff = tot_error_diff + error_diff;
+      averageError_diff = tot_error_diff / iteration;
+
+      wait(40,msec);
+      T1+=370;
+      con.Screen.print(rMotor1.position(deg));
+    }
+    con.Screen.print("done");
+      rMotor1.setBrake(coast); 
+      lMotor1.setBrake(coast);
+      rMotor2.setBrake(coast);
+      lMotor2.setBrake(coast);
+      rMotor1.spin(fwd,0,volt);
+      lMotor1.spin(fwd,0,volt);
+      rMotor2.spin(fwd,0,volt);
+      lMotor2.spin(fwd,0,volt);
+      
+
+
+
+
+  }
+
+
+/*
+.88b  d88.  .d8b.  d8b   db db    db  .d8b.  db        d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888.
+88'YbdP`88 d8' `8b 888o  88 88    88 d8' `8b 88        88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP
+88  88  88 88ooo88 88V8o 88 88    88 88ooo88 88        88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.
+88  88  88 88~~~88 88 V8o88 88    88 88~~~88 88        88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b.
+88  88  88 88   88 88  V888 88b  d88 88   88 88booo.   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D
+YP  YP  YP YP   YP VP   V8P ~Y8888P' YP   YP Y88888P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'
+*/
+  void drfwd(double dis,double speed,bool waitUntilComplete){
+    int a = 700;
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor(dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor(dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor(dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor(dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+  void drbwd(double dis,double speed,bool waitUntilComplete){
+    int a = 700;
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor(-1*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor(-1*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+  void drleft(double rot,double speed,bool waitUntilComplete){
+    int a = 700;
+    double b = 7.93;
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+  void drright(double rot,double speed,bool waitUntilComplete){
+    int a = 700;
+    double b = 7.93;
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor((1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor((-1)*2*3.14159*b*(rot/360)*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+  void clawopen() {
+    mG.close();
+  }
+
+  void clawclose(){
+    mG.open();
+  }
+
+  void liftUp(double rot, double speed,bool waitUntilComplete) {
+    ml2.setVelocity(speed, pct);
+    ml3.setVelocity(speed, pct);
+    ml2.rotateFor(5*rot, deg,false);
+    ml3.rotateFor(1*5*rot, deg, true);
+  }
+
+  void liftDown(double rot, double speed,bool waitUntilComplete){
+    ml2.setVelocity(speed, pct);
+    ml3.setVelocity(speed, pct);
+    ml2.rotateFor(-1*5*rot, deg,false);
+    ml3.rotateFor(-5*rot, deg,waitUntilComplete);
+  }
+
+  void ringOn(){
+    rl.setVelocity(100,pct);
+    rl.spin(fwd);
+  }
+
+  void ringOff(){
+    rl.setVelocity(0,pct);
+  }
+
+  void backArmDown(int speed,bool waitUntilComplete){
+    ml1.setVelocity(speed, pct);
+    ml1.spinTo(365*.81, deg, waitUntilComplete);
+  }
+
+  void backArmUp(int speed,bool waitUntilComplete){
+    ml1.setVelocity(speed, pct);
+    ml1.spinTo(365*.56, deg, waitUntilComplete);
+  }
+
+  void backArm(int amount ,int speed,bool waitUntilComplete){
+    ml1.setVelocity(speed, pct);
+    ml1.spinTo(amount, deg, waitUntilComplete);
+  }
+
+  void drfwdacc(double dis,double speed,bool waitUntilComplete){
+      int a = 700;
+    //stage 1
+    lMotor1.setVelocity(.2*speed, pct);
+    lMotor1.rotateFor(.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(.2*speed, pct);
+    lMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(.2*speed, pct);
+    rMotor1.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(.2*speed, pct);
+    rMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+    //stage 2
+    lMotor1.setVelocity(.5*speed, pct);
+    lMotor1.rotateFor(.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(.5*speed, pct);
+    lMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(.5*speed, pct);
+    rMotor1.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(.5*speed, pct);
+    rMotor2.rotateFor(.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+    //stage 3
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor(.9*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor(.9*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+  void drbwdacc(double dis,double speed,bool waitUntilComplete){
+      int a = 700;
+    //stage 1
+    lMotor1.setVelocity(.2*speed, pct);
+    lMotor1.rotateFor(-1*.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(.2*speed, pct);
+    lMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(.2*speed, pct);
+    rMotor1.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(.2*speed, pct);
+    rMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+    //stage 2
+    lMotor1.setVelocity(.5*speed, pct);
+    lMotor1.rotateFor(-1*.05*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(.5*speed, pct);
+    lMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(.5*speed, pct);
+    rMotor1.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(.5*speed, pct);
+    rMotor2.rotateFor(-1*.05*dis*(a/(12.88)), rotationUnits::raw,true);
+
+    //stage 3
+    lMotor1.setVelocity(speed, pct);
+    lMotor1.rotateFor(-1*.9*dis*(a/(12.88)),  rotationUnits::raw,false);
+    lMotor2.setVelocity(speed, pct);
+    lMotor2.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor1.setVelocity(speed, pct);
+    rMotor1.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,false);
+    rMotor2.setVelocity(speed, pct);
+    rMotor2.rotateFor(-1*.9*dis*(a/(12.88)), rotationUnits::raw,waitUntilComplete);
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ .d8b.  db    db d888888b  .d88b.  d8b   db   d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888.
+d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88   88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP
+88ooo88 88    88    88    88    88 88V8o 88   88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.
+88~~~88 88    88    88    88    88 88 V8o88   88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b.
+88   88 88b  d88    88    `8b  d8' 88  V888   88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D
+YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P   YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y'
+*/
+
+ void skills()
+ {
+   liftDown(10, 100, false);
+   clawopen();
+   drive(48, 1, 100);
+   drive(30,1,100);
+   //turnRight(22, 1, 100);
+   wait(500, msec);
+   clawclose();
+   liftUp(200, 100, false);
+   drleft(130, 100, true);
+   drive(58,1.5,100);
+   drleft(120, 100, true);
+   wait(1, sec);
+   drfwd(40, 100, false);
+   wait(.5, sec);
+   drive(20, 1, 100);
+   wait(2, sec);
+   liftDown(40, 100, false);
+    drleft(20, 50, true);
+   clawopen();
+   liftUp(40, 100, false);
+   drive(30, 1, 100);
+  drright(5,50, true);
+   drive(5, .5, 100);
+   backArm(400,100, true);
+   drive(-20, .5, 100);
+   drleft(10, 100, true);
+   drive(-200, 1, 100);
+   
+
+ 
+
+  
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  void autonSMid(){
+    drfwd(46, 100,true);
+    liftDown(5,100, false);
+    drfwd(3, 15,true);
+    clawclose();
+    wait(.05, sec);
+    drbwd(40, 100, true);
+  }
+
+  void autonkMid(){
+    drfwd(40, 100,true);
+    liftDown(5,100, false);
+    drfwd(3, 15,true);
+    clawclose();
+    wait(.05, sec);
+    drbwd(40, 100, true);
+  }
+
+  void autonCMid(){
+    drfwd(54, 100,true);
+    liftDown(5,100, false);
+    drfwd(5, 15,true);
+    clawclose();
+    wait(.05, sec);
+    drbwd(40, 100, true);
+  }
+
+  void autonRWPM(){
+    lMotor1.setBrake(coast);
+    lMotor2.setBrake(coast);
+    rMotor1.setBrake(coast);
+    rMotor2.setBrake(coast);
+    liftDown(5,100, false);
+    drfwd(41.5, 100,false);
+    wait(1.9,sec);
+    //drfwd(3, 15,true);
+    clawclose();
+    lMotor1.setBrake(brake);
+    lMotor2.setBrake(brake);
+    rMotor1.setBrake(brake);
+    rMotor2.setBrake(brake);
+    wait(.5, sec);
+    drbwd(10, 100, true);
+    liftUp(30, 100, false);
+    drleft(73, 100, true);
+    backArm(400, 100, true);
+    drbwd(22, 50, true);
+    backArmUp(100, true);
+    ringOn();
+    
+  }
+
+
+   void autonThrowMid(){
+      clawopen();
+      drfwd(70, 100,true);
+      wait(.2, sec);
+      drbwd(60, 100, true);
+  }
+
+  //right mogo turn left drop near ramp turn right grab right nutral mogo
+  void autonWP4 () {
+    liftDown(10, 100, false);
+    drfwd(24, 40, false);
+    wait(1,sec);
+    clawclose();
+    liftUp(30, 100, false);
+    wait(1.5,sec);
+    drleft(30, 100, true);
+    drfwd(5, 100, true);
+    drleft(30, 100, true);
+    drfwd(3, 100, true);
+    drleft(60, 100, true);
+    drfwd(2, 100, true);
+    drleft(60, 100, true);
+    drfwd(15, 40, true);
+    clawopen();
+    wait(.05, sec);
+    clawopen();
+    drbwd(2, 100, true);
+    liftDown(40, 100, false);
+    drright(100, 100, true);
+    drfwd(40, 100, true);
+    drfwd(2, 40, true);
+    clawclose();
+    wait(.2, sec);
+    drbwd(20,100, true);
+  }
+
+  void autonWPR () {
+    liftDown(10, 100, false);
+    drfwd(24, 40, false);
+    wait(1,sec);
+    clawclose();
+    wait(1.5,sec);
+    drbwd(25, 40, true);
+    //drleft(60, 100, true);
+    clawopen();
+    clawopen();
+  }
+
+  void autonWPL(){
+    drfwd(15,40,false);
+    wait(1,sec);
+    clawclose();
+    wait(1.5,sec);
+    drbwd(15,40,true);
+  }
+
+  void fullAutonWP(){
+   liftDown(10, 100, false);
+    //drfwd(20,40,true);
+    clawclose();
+    wait(1,sec);
+    drright(30, 100, true);
+    liftUp(90, 100, true);
+    drbwd(15,40,true);
+    drleft(60, 100, true);
+    drfwd(24,60,true);
+    wait(.5, sec);
+    drright(26, 100, true);
+    drfwd(44, 100, true);
+    drleft(220, 100, true);
+    backArmDown(100, true);
+    drbwd(18, 100, true);
+    backArmUp(100, true);
+    }
+
+  void autonWPR_Mid (){
+    liftDown(10, 100, false);
+    drfwd(24, 40, false);
+    wait(1,sec);
+    clawclose();
+    wait(1.5,sec);
+    drbwd(23, 40, true);
+    drleft(90, 100, true);
+    drfwd(24, 100, true);
+    clawopen();
+    clawopen();
+    drbwd(6, 100, true);
+    drright(90, 100, true);
+    drfwd(54, 100, true);
+    clawclose();
+    clawclose();
+    drbwd(54, 100, true);
+    }
+
+    void autonWP5(){
+      backArmDown(100, true);
+      drbwd(18, 20, true);
+      backArmUp(100, true);
+      wait(.5, sec);
+      ringOn();
+  }
+
+  void autonFullMid(){
+    clawopen();
+    drfwd(6, 100, true);
+    
+  }
+
+   void autonKICK(){
+    drfwd(40, 100,true);
+    liftDown(5,100, false);
+    drfwd(3, 15,true);
+    clawclose();
+    wait(.05, sec);
+    drbwd(40, 100, true);
+  }
+
+ 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+d8888b. d8888b. d88888b         .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888.
+88  `8D 88  `8D 88'            d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP
+88oodD' 88oobY' 88ooooo        88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.
+88~~~   88`8b   88~~~~~ C8888D 88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b.
+88      88 `88. 88.            88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D
+88      88   YD Y88888P        YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y'
+*/
+  void pre_auton(void) {
+    vexcodeInit();
+
+     clawopen();
+  }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ .d8b.  db    db d888888b  .d88b.  d8b   db  .d88b.  .88b  d88.  .d88b.  db    db .d8888.
+d8' `8b 88    88 `~~88~~' .8P  Y8. 888o  88 .8P  Y8. 88'YbdP`88 .8P  Y8. 88    88 88'  YP
+88ooo88 88    88    88    88    88 88V8o 88 88    88 88  88  88 88    88 88    88 `8bo.
+88~~~88 88    88    88    88    88 88 V8o88 88    88 88  88  88 88    88 88    88   `Y8b.
+88   88 88b  d88    88    `8b  d8' 88  V888 `8b  d8' 88  88  88 `8b  d8' 88b  d88 db   8D
+YP   YP ~Y8888P'    YP     `Y88P'  VP   V8P  `Y88P'  YP  YP  YP  `Y88P'  ~Y8888P' `8888Y'
+*/
+  void autonomous(void) {
+   skills();
+  }
+//cringe
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+d8888b. d8888b. d888888b db    db d88888b d8888b.
+88  `8D 88  `8D   `88'   88    88 88'     88  `8D
+88   88 88oobY'    88    Y8    8P 88ooooo 88oobY'
+88   88 88`8b      88    `8b  d8' 88~~~~~ 88`8b
+88  .8D 88 `88.   .88.    `8bd8'  88.     88 `88.
+Y8888D' 88   YD Y888888P    YP    Y88888P 88   YD
+*/
+
+  void usercontrol(void) {
+    michia.resetPosition();
+    ml1.setVelocity(100, pct);
+    ml1.setBrake(hold);
+    while (1) {
+
+      Brain.Screen.clearScreen();
+      Brain.Screen.setCursor(1, 1);
+      Brain.Screen.print(lMotor1.position(deg));
+
+
+      int left = con.Axis3.position()+con.Axis4.position();
+      int right = con.Axis3.position()-con.Axis4.position();
+
+      lMotor1.spin(fwd, left, percent);
+      lMotor2.spin(fwd, left, percent);
+      rMotor1.spin(fwd, right, percent);
+      rMotor2.spin(fwd, right, percent);
+      lMotor1.setBrake(brake);
+      lMotor2.setBrake(brake);
+      rMotor1.setBrake(brake);
+      rMotor2.setBrake(brake);
+      
+       con.Screen.clearScreen();
+       con.Screen.setCursor(1, 1);
+       con.Screen.print(uppos);
+       con.Screen.setCursor(2,1);
+       con.Screen.print(downpos);
+
+
+  if (con.ButtonA.pressing()) {
+    con.Screen.print("pressing");
+
+    if (f4 == 0) {
+      f4=1;
+      if (tog2 == 0) {
+        ml1.spinTo(365*downpos, deg, false);
+        tog2=1;
+      } else if (tog2==1) {
+        ml1.setVelocity(50, pct);
+        ml1.spinTo(365*uppos, deg, false);
+        tog2=0;
+      }
+    }
+  } else if (con.ButtonA.pressing() == false) {
+      f4=0;
+  }
+
+  if (con.ButtonUp.pressing() || con.ButtonDown.pressing()) {
+    if (f3==0) {
+      f3=1;
+      if (con.ButtonUp.pressing()) {
+        uppos -= .01;
+        downpos -= .01;
+      } else if (con.ButtonDown.pressing()) {
+        uppos += .01;
+        downpos += .01;    
+      }
+
+      /////
+      if (tog2 == 1) {
+        ml1.spinTo(365*downpos, deg, false);
+      } else if (tog2==0) {
+        ml1.spinTo(365*uppos, deg, false);
+      }
+      ///
+
+    } else /*if (con.ButtonUp.pressing()==false && con.ButtonDown.pressing()==false)*/ {
+      f3=0;
+    }
+  }
+
+  if (con.ButtonY.pressing()){
+    ml1.spinTo(0,deg,false);
+  }
+
+      if (con.ButtonL2.pressing()) {
+        mG.open();
+      }
+
+      if (con.ButtonL1.pressing()){
+        mG.close();
+      }
+
+
+      if (con.ButtonB.pressing()) {
+        rl.spin(reverse, 100, percent);
+      } else if (con.ButtonX.pressing()) {
+        if(f2==0) {
+          if (tog==0) {
+            tog = 1;
+          } else {
+            tog = 0;
+          }
+        f2=1;
+        }
+      }
+      if(!con.ButtonX.pressing()){
+        f2=0;
+      }
+
+
+      if (tog==0 && !con.ButtonB.pressing()) {
+        if (rl.current(pct)<=90) {
+        rl.spin(fwd,100,percent);
+        } else {
+        rl.spin(reverse,100,percent);
+        }
+      } else if (tog==1 && !con.ButtonB.pressing()) {
+        rl.stop();
+      }
+
+      if(con.ButtonR1.pressing()) {
+        ml3.spin(fwd, 100, percent);
+        ml2.spin(fwd, 100, percent);
+      } else if (con.ButtonR2.pressing()) {
+        ml3.spin(reverse, 100, percent);
+        ml2.spin(reverse, 100, percent);
+      } else {
+        ml3.stop(brakeType::hold);
+        ml2.stop(brakeType::hold);
+      }
+      wait(20, msec);
+    }
+  }
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int main() {
+  Competition.autonomous(autonomous);
+  Competition.drivercontrol(usercontrol);
+  pre_auton();
+  while (true) {
+    wait(100, msec);
+  }
+}
